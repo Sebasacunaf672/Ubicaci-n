@@ -1,0 +1,192 @@
+<html>
+  <head>
+    <!-- Required meta tags -->
+    <meta http-equiv="Content-Type" content=text/html; charset=UTF-8? />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" type="text/css" href="Home.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.8.1/baguetteBox.min.css">
+	<title>Ubicación</title>
+        <!-- Bootstrap CSS -->  
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>		
+  </head>
+  <body>
+		<center>
+			<header >
+			<div id="Cabecera">
+			<div id="ulogo">
+			<img src="logo.jpg" width="15%" height="100%">
+			<div>
+			</div>
+		</header>
+		<div id="Navegador">
+		<nav class="navbar navbar-expand-md navbar-dark bg-pink" style="padding:0px;">    
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav text-center">
+                <a href="https://sebasacunaf672.github.io/Queques-Rosi/" class="nav-item nav-link">INICIO</a>
+				<a href="https://sebasacunaf672.github.io/Queques/" class="nav-item nav-link">QUEQUES</a>
+                <a href="https://sebasacunaf672.github.io/CupCakes/." class="nav-item nav-link">CUPCAKES</a>
+				<a href="https://sebasacunaf672.github.io/Postres/" class="nav-item nav-link">POSTRES</a>
+				<a href="https://sebasacunaf672.github.io/Pancitos/" class="nav-item nav-link">PANCITOS</a>
+				<a href="Contactenos.html" class="nav-item nav-link">CONTÁCTENOS</a>
+				<a href="Acerca de Nosotros.html" class="nav-item nav-link">ACERCA DE NOSOTROS</a>
+		  </div>
+        </div>
+    </nav>
+	</div>
+		<main>
+		<div id="Contenedor">
+		<h1>Nuestra ubicación</h1>
+		<div class="container map-container">
+            <div id="map" style="height: 90%; width: 100%;" class="mapa"> </div>
+        </div>
+		</div>
+        <script type="text/javascript">
+            var divMapa = document.getElementById('map');
+            navigator.geolocation.getCurrentPosition(fn_ok, fn_mal); //objeto geolocation con ese meto para obtener la posición actual
+
+
+            //Manejo de errores
+            function fn_mal(error) {
+                var msj;
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        msj = "no se ha permitido el acceso a la posición del usuario.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        msj = "no se ha podido acceder a la información de su posición.";
+                        break;
+                    case error.TIMEOUT:
+                        msj = "el servicio ha tardado demasiado tiempo en responder.";
+                        break;
+                    default:
+                        msj = "Error desconocido.";
+                }
+                alert('No se pudo obtener ubicación debido a que ' + msj)
+            }
+            //Fin Manejo de errores
+
+
+
+            function fn_ok(respuesta) {
+                var lat = respuesta.coords.latitude; // obtiene la longitus y latitu del celular o compu del usuario//
+                var lon = respuesta.coords.longitude;
+
+                var gLatLonUsuario = new google.maps.LatLng(lat, lon);   //se crea
+                var gLatLonFijo = new google.maps.LatLng(10.0838607,-84.3689135,15);
+                var objConfig = {
+                    zoom: 10,
+                    center: gLatLonFijo
+                }
+                var gMapa = new google.maps.Map(divMapa, objConfig);
+                var objConfigMarkerFijo = {
+                    position: gLatLonFijo, //lugar que se dirige
+                    map: gMapa,
+                    title: "Queques Rosi",
+
+                }
+                var objConfigMarkerUsuario = {
+                    position: gLatLonUsuario,
+                    map: gMapa, //lugar donde esta
+                    title: "Usted está aquí",
+                   // icon: 'img/Map-Marker-Free-Download-PNG.png',
+                    height: '2px',
+                    width: '2px'
+                   
+                }
+
+                var gMarkerFijo = new google.maps.Marker(objConfigMarkerFijo);     ///Como parámetro recibe un objeto de configuración que lo que hace es darle diseño al marcador
+                var gMarkerUsuario = new google.maps.Marker(objConfigMarkerUsuario); //marcador para la posición actual y el de la posición fija
+                                                                                    //g marker son los marcadores (los iconos que sale en el mapa)
+                var objConfigDR = {
+                    map: gMapa
+                }
+
+
+                var objConfigDS = {
+                    origin: gLatLonFijo,
+                    destination: gLatLonUsuario,
+                    travelMode: google.maps.TravelMode.DRIVING
+                }
+
+
+
+                var ds = new google.maps.DirectionsService();
+                //Obtener coordenadas
+
+                var dr = new google.maps.DirectionsRenderer(
+                    objConfigDR
+                ); //Traduce las coordenadas a ruta visible
+
+                ds.route(objConfigDS, fnRutear);
+
+                function fnRutear(resultados, status) {
+                    //Mostrar la linea entra A y B
+                    if (status == 'OK') {
+                        dr.setDirections(resultados);
+                    } else {
+                        alert('Error' + status);
+                    }
+                }
+
+
+                //Con los métodos de google Maps (importante poner libraries=geometry en el script de la API Key)
+                document.getElementById("distancia").innerText = (google.maps.geometry.spherical.computeDistanceBetween(
+                    gLatLonFijo,
+                    gMarkerUsuario.getPosition()) / 1000).toFixed(2) + " km.";
+
+
+
+
+                //Utilizando el método Haversine
+                document.getElementById("distanciaH").innerText = ((getDistance(gLatLonUsuario, gLatLonFijo) / 1000)
+                    .toFixed(2) + " km.");
+
+
+
+
+            } //fin fn_ok
+
+            //Para obtener la distancia con el método Haversine.
+            function rad(x) {
+                return x * Math.PI / 180;
+            };
+
+            function getDistance(p1, p2) {
+
+                var R = 6378137; //radio de la tierra en metros
+                var dLat = rad(p2.lat() - p1.lat());
+                var dLong = rad(p2.lng() - p1.lng());
+                var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(rad(p1.lat())) * Math.cos(rad(p2.lat())) *
+                    Math.sin(dLong / 2) * Math.sin(dLong / 2);
+                var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                var d = R * c;
+                return d;
+            };
+        </script>
+		</main>
+		<footer>
+		<center>
+		<div id="Pie" >
+				<h4>Visite nuestras redes sociales</h4>
+				<div id="ufoto">
+				<img src="instagram.png"><a href="https://www.instagram.com/quequesrosi/?hl=es-la">@quequesrosi</a>
+				<img src="face.png"><a href="https://www.facebook.com/QuequesRosi">@Queques R Rosi</a>
+				</div>
+				Autor:<a href="Autor.html"> Sebastián Acuña Fernández</a>
+		</div>
+		</center>
+	</footer>
+	<script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlX835ETosPZ9pSs6wyvzf3wQ88yc4CU8">
+    </script>
+	
+  </body>
+</html>
